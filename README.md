@@ -67,8 +67,7 @@ Project Organization
 
 Versions
 ------------
-0.1 Initialize
-0.2 Added preliminary data exploration
+0.1    Created repo and started Github
 
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
