@@ -2,7 +2,7 @@ Fantasy Football
 ==============================
 
 A tool to rank players for the upcoming NFL Fantasy Football season
-**Version 0.1**
+**Version 0.2**
 
 Project Organization
 ------------
@@ -64,6 +64,11 @@ Project Organization
 ## Authors
 * **YOUR NAME** - [Github](https://github.com/huskyjo) -
 [web](http://www.jrobsvision.com)
+
+Versions
+------------
+0.1 Initialize
+0.2 Added preliminary data exploration
 
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
