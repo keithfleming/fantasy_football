@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from sklearn  import linear_model
+from sklearn import metrics
 import matplotlib.pyplot as plt
 
 plt.style.use('ggplot')
@@ -16,7 +18,9 @@ def load_data(filename):
                                        "Yds.1": "RushYds", "TD.1": "RushTD", "Yds.2": "RecYds", "TD.2": "RecTD"})
     df = remove_players_wo_positions(df)
     df = format_position(df)
-    return df
+    df['Label'] = df['Name'].str.split('\\').str[1]
+    df['Name'] = df['Name'].str.split('\\').str[0]
+    return pd.DataFrame(df)
 
 def remove_players_wo_positions(df):
     """
@@ -36,15 +40,6 @@ def format_position(df):
     """
     df['FantPos'] = df['FantPos'].str.upper()
     return df
-
-def fold_data(seasonData, folds = 5):
-    """
-    Function to fold the data into multiple partitions for analysis
-    :param seasonData: The complete set of data
-    :param folds: The number of times to partition the data
-    :return: The complete set of data partioned
-    """
-    pass
 
 def format_name(seasonData):
     """
@@ -70,17 +65,6 @@ def fill_zeros(seasonData):
     :return: The season data with zeros instead of NaN
     """
     pass
-
-def get_future_points(seasonData1, seasonData2):
-    """
-    Function to get the next seasons Fantasy points into the same dataframe as the previous seasons statistics for
-    use in predicting future points
-    :param seasonData1: The season's data that will be used in predicting
-    :param seasonData2: The season's data to get the future fantasy points from
-    :return: seasonData1 with the seasonData2 fantasy points as an added variable
-    """
-    seasonData2 = seasonData2.rename(index=str, columns={"FantPts": "FutureFantPts"})
-    return pd.merge(seasonData1, seasonData2['FutureFantPts'], how = 'left')
 
 def plot_yards_by_position(df):
     """
@@ -120,6 +104,62 @@ def total_fantasy_points_by_team(df):
     ax = teamdf['FantPt'].sort_values(ascending = False).plot.bar(title = 'Total Fantasy Points by Team')
     ax.set_xlabel('Team')
     ax.set_ylabel('Fantasy Points')
+
+def get_index_for_position(season1, season2, pos = 'QB'):
+    """
+    Function that returns the index of common players for a specific position
+    :param season1: The first year of season data
+    :param season2: The send year of season data
+    :param pos: The position to get the index for
+    :return: The index with unique players
+    """
+    pos1 = season1[season1['FantPos'] == pos]
+    pos2 = season2[season2['FantPos'] == pos]
+    lab1 = pos1['Label'].tolist()
+    lab2 = pos2['Label'].tolist()
+    player_index = [x for x in lab1 if x in lab2]
+    return player_index
+
+def prepare_input_data(data, result, index, pos):
+    """
+    Prepare the training and test data for modeling
+    :param data:
+    :param result:
+    :param index:
+    :param pos:
+    :return:
+    """
+    data = data[data['Label'].isin(index)]
+    data = data.sort_values('Label')
+
+    if pos == 'QB':
+        X = data[['RecYds', 'FantPt']]
+    elif pos == 'WR':
+        X = data[['RecYds', 'FantPt']]
+    elif pos == 'RB':
+        X = data[['RecYds', 'FantPt']]
+    elif pos == 'TE':
+        X = data[['RecYds', 'FantPt']]
+
+    result = result[result['Label'].isin(index)]
+    result = result.sort_values('Label')
+    Y = result['FantPt']
+
+    X = X.fillna(0)
+    Y = Y.fillna(0)
+
+    return X,Y
+
+if __name__ == "__main__":
+    train = load_data("2013_Fantasy")
+    test = load_data("2014_Fantasy")
+    QB_2013_2014_index = get_index_for_position(train,test)
+
+    input, result = prepare_input_data(train, test,  QB_2013_2014_index, 'QB')
+    QBmodel = linear_model.LinearRegression()
+    QBmodel.fit(input,result)
+    print(QBmodel.coef_)
+
 
 
 
