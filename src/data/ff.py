@@ -125,15 +125,15 @@ def prepare_input_data(data, result, index, pos):
     Prepare the training and test data for modeling
     :param data:
     :param result:
-    :param index:
-    :param pos:
+    :param index: The set of players to prepare data for
+    :param pos: The position to aggregrate data for
     :return:
     """
     data = data[data['Label'].isin(index)]
     data = data.sort_values('Label')
 
     if pos == 'QB':
-        X = data[['RecYds', 'FantPt']]
+        X = data[['Cmp', 'PassAtt', 'PassYds', 'PassTD', 'Int', 'RushAtt', 'RushYds', 'Y/A', 'RushTD', 'FantPt']]
     elif pos == 'WR':
         X = data[['RecYds', 'FantPt']]
     elif pos == 'RB':
@@ -145,20 +145,97 @@ def prepare_input_data(data, result, index, pos):
     result = result.sort_values('Label')
     Y = result['FantPt']
 
+    #Fill in any missing values with 0
     X = X.fillna(0)
     Y = Y.fillna(0)
 
     return X,Y
 
-if __name__ == "__main__":
-    train = load_data("2013_Fantasy")
-    test = load_data("2014_Fantasy")
-    QB_2013_2014_index = get_index_for_position(train,test)
+def linear_regression(training_stats, training_future_points, test_stats, test_future_points):
+    """
+        Fit and test a linear regression model
+        :param training_stats: The dataframe with player statistics to fit the model
+        :param training_future_points: The set of future fantasy points for the training_stats
+        :param test_stats: The dataframe with player statistics to test model
+        :param test_future_points: The set of future fantasy points for the test_stats
+        :return: Model intercept, model coefficients, and mse from the test set
+        """
+    model = linear_model.LinearRegression()
+    model.fit(training_stats, training_future_points)
 
-    input, result = prepare_input_data(train, test,  QB_2013_2014_index, 'QB')
-    QBmodel = linear_model.LinearRegression()
-    QBmodel.fit(input,result)
-    print(QBmodel.coef_)
+    pred = model.predict(test_stats)
+
+    mse = metrics.mean_squared_error(test_future_points, pred)
+
+    return model, pred, mse
+
+def ridge_regression(training_stats, training_future_points, test_stats, test_future_points):
+    """
+        Fit and test a ridge regression model
+        :param training_stats: The dataframe with player statistics to fit the model
+        :param training_future_points: The set of future fantasy points for the training_stats
+        :param test_stats: The dataframe with player statistics to test model
+        :param test_future_points: The set of future fantasy points for the test_stats
+        :return: Linear regression model and MSE from the test set
+        """
+    model = linear_model.RidgeCV()
+    model.fit(training_stats, training_future_points)
+
+    pred = model.predict(test_stats)
+
+    mse = metrics.mean_squared_error(test_future_points, pred)
+
+    return model, pred, mse
+
+def lasso_regression(training_stats, training_future_points, test_stats, test_future_points):
+    """
+        Fit and test a lasso regression model
+        :param training_stats: The dataframe with player statistics to fit the model
+        :param training_future_points: The set of future fantasy points for the training_stats
+        :param test_stats: The dataframe with player statistics to test model
+        :param test_future_points: The set of future fantasy points for the test_stats
+        :return: Linear regression model and MSE from the test set
+        """
+    model = linear_model.LassoCV()
+    model.fit(training_stats, training_future_points)
+
+    pred = model.predict(test_stats)
+
+    mse = metrics.mean_squared_error(test_future_points, pred)
+
+    return model, pred, mse
+
+if __name__ == "__main__":
+    fantasy2013 = load_data("2013_Fantasy")
+    fantasy2014 = load_data("2014_Fantasy")
+    fantasy2015 = load_data("2015_Fantasy")
+
+    QB_2013_2014_index = get_index_for_position(fantasy2013,fantasy2014)
+    QB_2014_2015_index = get_index_for_position(fantasy2014, fantasy2015)
+
+    stats2013, points2014 = prepare_input_data(fantasy2013, fantasy2014,  QB_2013_2014_index, 'QB')
+    stats2014, points2015 = prepare_input_data(fantasy2014, fantasy2015, QB_2014_2015_index, 'QB')
+
+    QB_linear_model, QB_linear_preds, QB_linear_mse = linear_regression(stats2013, points2014, stats2014, points2015)
+    QB_ridge_model, QB_ridge_preds, QB_ridge_mse = ridge_regression(stats2013, points2014, stats2014, points2015)
+    QB_lasso_model, QB_lasso_preds, QB_lasso_mse = ridge_regression(stats2013, points2014, stats2014, points2015)
+
+    #QBmodel = linear_model.LinearRegression()
+    #QBmodel.fit(stats2013,points2014)
+    #pred2015 = QBmodel.predict(stats2014)
+
+    #print(QBmodel.coef_)
+
+    #mse = metrics.mean_squared_error(points2015, pred2015)
+    #mae = metrics.mean_absolute_error(points2015, pred2015)
+    #resid = points2015 - pred2015
+
+    #plt.hist(resid, 20)
+    #plt.xlabel('Residuals')
+    #plt.ylabel('Frequency')
+    #plt.title('2015 QB Model Residuals')
+    #plt.show()
+
 
 
 
