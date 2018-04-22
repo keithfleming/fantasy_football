@@ -83,7 +83,7 @@ def prepare_input_data(data, result, index, pos):
     if pos == 'QB':
         X = data[['Cmp', 'PassAtt', 'PassYds', 'PassTD', 'Int', 'RushAtt', 'RushYds', 'Y/A', 'RushTD', 'FantPt']]
     elif pos == 'WR' or pos == 'TE':
-        X = data[['Rec', 'Tgt', 'RecYds', 'RecTD' 'FantPt']]
+        X = data[['Rec', 'Tgt', 'RecYds', 'RecTD', 'FantPt']]
     elif pos == 'RB':
         X = data[['RushAtt', 'RushYds', 'RushTD', 'Rec', 'Tgt', 'RecYds', 'RecTD' 'FantPt']]
 
