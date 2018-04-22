@@ -38,30 +38,6 @@ def format_position(df):
     df['FantPos'] = df['FantPos'].str.upper()
     return df
 
-def plot_yards_by_position(df):
-    """
-    Generate a plot of total average yards per position
-    :param df: The dataframe with a season of data
-    :return: None
-    """
-    positiondf = df.groupby('FantPos').mean()
-    ax = positiondf[['PassYds', 'RushYds', 'RecYds']].plot(kind = 'bar', stacked = True, title = 'Total Yards by Position')
-    ax.set_xlabel('Position')
-    ax.set_ylabel('Yards')
-
-def hist_yards_by_pos(df, pos = 'QB'):
-    """
-    Generate a histogram with yards for a specific position
-    :param df: The dataframe with a season of data
-    :param pos: The position to create the histogram for
-    :return: None
-    """
-    df = df[df['FantPos'] == pos]
-    ax = df[['PassYds', 'RushYds', 'RecYds']].plot.hist(bins = 25, stacked = True, title = 'Histogram of Yardage for ' + pos)
-    ax.set_ylabel('Frequency')
-    ax.set_xlabel('Yards')
-
-
 def total_fantasy_points_by_team(df):
     """
     Generate a plot with the average number of fantasy points per team
@@ -106,12 +82,10 @@ def prepare_input_data(data, result, index, pos):
 
     if pos == 'QB':
         X = data[['Cmp', 'PassAtt', 'PassYds', 'PassTD', 'Int', 'RushAtt', 'RushYds', 'Y/A', 'RushTD', 'FantPt']]
-    elif pos == 'WR':
-        X = data[['RecYds', 'FantPt']]
+    elif pos == 'WR' or pos == 'TE':
+        X = data[['Rec', 'Tgt', 'RecYds', 'RecTD' 'FantPt']]
     elif pos == 'RB':
-        X = data[['RecYds', 'FantPt']]
-    elif pos == 'TE':
-        X = data[['RecYds', 'FantPt']]
+        X = data[['RushAtt', 'RushYds', 'RushTD', 'Rec', 'Tgt', 'RecYds', 'RecTD' 'FantPt']]
 
     result = result[result['Label'].isin(index)]
     result = result.sort_values('Label')
