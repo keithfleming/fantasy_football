@@ -182,6 +182,24 @@ def lasso_regression(training_stats, training_future_points, test_stats, test_fu
 
     return model, pred, mse
 
+def elasticnet_regression(training_stats, training_future_points, test_stats, test_future_points):
+    """
+        Fit and test a elastic net regression model
+        :param training_stats: The dataframe with player statistics to fit the model
+        :param training_future_points: The set of future fantasy points for the training_stats
+        :param test_stats: The dataframe with player statistics to test model
+        :param test_future_points: The set of future fantasy points for the test_stats
+        :return: Elastic Net regression model and MSE from the test set
+        """
+    model = linear_model.ElasticNetCV()
+    model.fit(training_stats, training_future_points)
+
+    pred = model.predict(test_stats)
+
+    mse = metrics.mean_squared_error(test_future_points, pred)
+
+    return model, pred, mse
+
 def knn(training_stats, training_future_points, test_stats, test_future_points):
     """
         Fit and test a k nearest neighbor model
@@ -224,7 +242,8 @@ if __name__ == "__main__":
 
     QB_linear_model, QB_linear_preds, QB_linear_mse = linear_regression(QBstats2013, QBpoints2014, QBstats2014, QBpoints2015)
     QB_ridge_model, QB_ridge_preds, QB_ridge_mse = ridge_regression(QBstats2013, QBpoints2014, QBstats2014, QBpoints2015)
-    QB_lasso_model, QB_lasso_preds, QB_lasso_mse = ridge_regression(QBstats2013, QBpoints2014, QBstats2014, QBpoints2015)
+    QB_lasso_model, QB_lasso_preds, QB_lasso_mse = lasso_regression(QBstats2013, QBpoints2014, QBstats2014, QBpoints2015)
+    QB_elasticnet_model, QB_elasticnet_preds, QB_elasticnet_mse = elasticnet_regression(QBstats2013, QBpoints2014, QBstats2014,                                                          QBpoints2015)
     QB_knn_model, QB_knn_preds, QB_knn_mse = knn(QBstats2013, QBpoints2014, QBstats2014, QBpoints2015)
 
     #mse = metrics.mean_squared_error(points2015, pred2015)
