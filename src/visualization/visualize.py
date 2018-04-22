@@ -2,6 +2,29 @@ import matplotlib.pyplot as plt
 import numpy as np
 from math import ceil
 
+def plot_yards_by_position(df):
+    """
+    Generate a plot of total average yards per position
+    :param df: The dataframe with a season of data
+    :return: None
+    """
+    positiondf = df.groupby('FantPos').mean()
+    ax = positiondf[['PassYds', 'RushYds', 'RecYds']].plot(kind = 'bar', stacked = True, title = 'Total Yards by Position')
+    ax.set_xlabel('Position')
+    ax.set_ylabel('Yards')
+
+def hist_yards_by_pos(df, pos = 'QB'):
+    """
+    Generate a histogram with yards for a specific position
+    :param df: The dataframe with a season of data
+    :param pos: The position to create the histogram for
+    :return: None
+    """
+    df = df[df['FantPos'] == pos]
+    ax = df[['PassYds', 'RushYds', 'RecYds']].plot.hist(bins = 25, stacked = True, title = 'Histogram of Yardage for ' + pos)
+    ax.set_ylabel('Frequency')
+    ax.set_xlabel('Yards')
+
 def plot_regression_coefs(multiple, ridge, lasso, elasticnet, pos):
     width = 0.2
 
@@ -36,7 +59,7 @@ def plot_pred_vs_actual(pred, actual, pos, model):
     extrema = max(max(pred), max(actual))
     extrema = int(ceil(extrema / 100.0)) * 100
 
-    plt.plot([0,extrema], [0,extrema], '--', color = 'b')
+    plt.plot([-20,extrema+20], [-20,extrema+20], '--', color = 'b')
     plt.scatter(pred, actual)
     plt.axis('equal')
 
