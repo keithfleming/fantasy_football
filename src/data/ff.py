@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 from sklearn  import linear_model
 from sklearn import metrics
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.model_selection import cross_val_predict
 import matplotlib.pyplot as plt
 
 plt.style.use('ggplot')
@@ -40,31 +42,6 @@ def format_position(df):
     """
     df['FantPos'] = df['FantPos'].str.upper()
     return df
-
-def format_name(seasonData):
-    """
-    The name variable for each player has 3 parts: first name, last name, and unique identifier. Each name will need to
-    be seperated into the three components
-    :param seasonData: The dataframe with all the players from a season
-    :return: Dataframe with the name comlumn properly seperated
-    """
-    pass
-
-def norm_data(seasonData):
-    """
-    The season data needs to be normalized
-    :param seasonData: The complete set of data for a season
-    :return: The data frame with the data normalized
-    """
-    pass
-
-def fill_zeros(seasonData):
-    """
-    Many players have blanks for some cells. This needs to be filled with a 0 instead of NaN
-    :param seasonData: The complete set of data for a season
-    :return: The season data with zeros instead of NaN
-    """
-    pass
 
 def plot_yards_by_position(df):
     """
@@ -176,7 +153,7 @@ def ridge_regression(training_stats, training_future_points, test_stats, test_fu
         :param training_future_points: The set of future fantasy points for the training_stats
         :param test_stats: The dataframe with player statistics to test model
         :param test_future_points: The set of future fantasy points for the test_stats
-        :return: Linear regression model and MSE from the test set
+        :return: Ridge regression model and MSE from the test set
         """
     model = linear_model.RidgeCV()
     model.fit(training_stats, training_future_points)
@@ -194,9 +171,38 @@ def lasso_regression(training_stats, training_future_points, test_stats, test_fu
         :param training_future_points: The set of future fantasy points for the training_stats
         :param test_stats: The dataframe with player statistics to test model
         :param test_future_points: The set of future fantasy points for the test_stats
-        :return: Linear regression model and MSE from the test set
+        :return: Lasso regression model and MSE from the test set
         """
     model = linear_model.LassoCV()
+    model.fit(training_stats, training_future_points)
+
+    pred = model.predict(test_stats)
+
+    mse = metrics.mean_squared_error(test_future_points, pred)
+
+    return model, pred, mse
+
+def knn(training_stats, training_future_points, test_stats, test_future_points):
+    """
+        Fit and test a k nearest neighbor model
+        :param training_stats: The dataframe with player statistics to fit the model
+        :param training_future_points: The set of future fantasy points for the training_stats
+        :param test_stats: The dataframe with player statistics to test model
+        :param test_future_points: The set of future fantasy points for the test_stats
+        :return: k nearest neighbors and MSE from the test set
+        """
+    neighbors = [2,4,6,8,10,12,14,16,18,20]
+
+    cv_scores = []
+
+    for k in neighbors:
+        knn = KNeighborsRegressor(n_neighbors = k)
+        scores = cross_val_predict(knn, training_stats, training_future_points, cv = 5)
+        cv_scores.append(scores.mean())
+
+    optimal_k = neighbors[cv_scores.index(min(cv_scores))]
+
+    model = KNeighborsRegressor(n_neighbors=optimal_k)
     model.fit(training_stats, training_future_points)
 
     pred = model.predict(test_stats)
@@ -213,18 +219,13 @@ if __name__ == "__main__":
     QB_2013_2014_index = get_index_for_position(fantasy2013,fantasy2014)
     QB_2014_2015_index = get_index_for_position(fantasy2014, fantasy2015)
 
-    stats2013, points2014 = prepare_input_data(fantasy2013, fantasy2014,  QB_2013_2014_index, 'QB')
-    stats2014, points2015 = prepare_input_data(fantasy2014, fantasy2015, QB_2014_2015_index, 'QB')
+    QBstats2013, QBpoints2014 = prepare_input_data(fantasy2013, fantasy2014,  QB_2013_2014_index, 'QB')
+    QBstats2014, QBpoints2015 = prepare_input_data(fantasy2014, fantasy2015, QB_2014_2015_index, 'QB')
 
-    QB_linear_model, QB_linear_preds, QB_linear_mse = linear_regression(stats2013, points2014, stats2014, points2015)
-    QB_ridge_model, QB_ridge_preds, QB_ridge_mse = ridge_regression(stats2013, points2014, stats2014, points2015)
-    QB_lasso_model, QB_lasso_preds, QB_lasso_mse = ridge_regression(stats2013, points2014, stats2014, points2015)
-
-    #QBmodel = linear_model.LinearRegression()
-    #QBmodel.fit(stats2013,points2014)
-    #pred2015 = QBmodel.predict(stats2014)
-
-    #print(QBmodel.coef_)
+    QB_linear_model, QB_linear_preds, QB_linear_mse = linear_regression(QBstats2013, QBpoints2014, QBstats2014, QBpoints2015)
+    QB_ridge_model, QB_ridge_preds, QB_ridge_mse = ridge_regression(QBstats2013, QBpoints2014, QBstats2014, QBpoints2015)
+    QB_lasso_model, QB_lasso_preds, QB_lasso_mse = ridge_regression(QBstats2013, QBpoints2014, QBstats2014, QBpoints2015)
+    QB_knn_model, QB_knn_preds, QB_knn_mse = knn(QBstats2013, QBpoints2014, QBstats2014, QBpoints2015)
 
     #mse = metrics.mean_squared_error(points2015, pred2015)
     #mae = metrics.mean_absolute_error(points2015, pred2015)
@@ -235,11 +236,3 @@ if __name__ == "__main__":
     #plt.ylabel('Frequency')
     #plt.title('2015 QB Model Residuals')
     #plt.show()
-
-
-
-
-
-
-
-
