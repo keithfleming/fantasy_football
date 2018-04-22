@@ -1,5 +1,6 @@
 import data.ff as data
 import models.train_model as model
+import visualization.visualize as vis
 
 if __name__ == "__main__":
     fantasy2013 = data.load_data("2013_Fantasy")
@@ -17,3 +18,6 @@ if __name__ == "__main__":
     QB_lasso_model, QB_lasso_preds, QB_lasso_mse = model.lasso_regression(QBstats2013, QBpoints2014, QBstats2014, QBpoints2015)
     QB_elasticnet_model, QB_elasticnet_preds, QB_elasticnet_mse = model.elasticnet_regression(QBstats2013, QBpoints2014, QBstats2014,                                                          QBpoints2015)
     QB_knn_model, QB_knn_preds, QB_knn_mse = model.knn(QBstats2013, QBpoints2014, QBstats2014, QBpoints2015)
+
+    #vis.plot_regression_coefs(QB_linear_model.coef_, QB_ridge_model.coef_, QB_lasso_model.coef_, QB_elasticnet_model.coef_, 'QB')
+    vis.plot_pred_vs_actual(QB_elasticnet_preds, QBpoints2015, 'QB', ' Elastic Net')
