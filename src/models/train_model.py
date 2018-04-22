@@ -14,7 +14,7 @@ def linear_regression(training_stats, training_future_points, test_stats, test_f
         :param test_future_points: The set of future fantasy points for the test_stats
         :return: Model intercept, model coefficients, and mse from the test set
         """
-    model = linear_model.LinearRegression()
+    model = linear_model.LinearRegression(fit_intercept=False)
     model.fit(training_stats, training_future_points)
 
     pred = model.predict(test_stats)
@@ -32,7 +32,7 @@ def ridge_regression(training_stats, training_future_points, test_stats, test_fu
         :param test_future_points: The set of future fantasy points for the test_stats
         :return: Ridge regression model and MSE from the test set
         """
-    model = linear_model.RidgeCV()
+    model = linear_model.RidgeCV(fit_intercept=False)
     model.fit(training_stats, training_future_points)
 
     pred = model.predict(test_stats)
@@ -50,7 +50,7 @@ def lasso_regression(training_stats, training_future_points, test_stats, test_fu
         :param test_future_points: The set of future fantasy points for the test_stats
         :return: Lasso regression model and MSE from the test set
         """
-    model = linear_model.LassoCV()
+    model = linear_model.LassoCV(fit_intercept=False)
     model.fit(training_stats, training_future_points)
 
     pred = model.predict(test_stats)
@@ -68,7 +68,7 @@ def elasticnet_regression(training_stats, training_future_points, test_stats, te
         :param test_future_points: The set of future fantasy points for the test_stats
         :return: Elastic Net regression model and MSE from the test set
         """
-    model = linear_model.ElasticNetCV()
+    model = linear_model.ElasticNetCV(fit_intercept=False)
     model.fit(training_stats, training_future_points)
 
     pred = model.predict(test_stats)
