@@ -3,7 +3,7 @@ import numpy as np
 from sklearn  import linear_model
 from sklearn import metrics
 from sklearn.neighbors import KNeighborsRegressor
-from sklearn.model_selection import cross_val_predict
+from sklearn.model_selection import cross_val_score
 
 def linear_regression(training_stats, training_future_points, test_stats, test_future_points):
     """
@@ -92,7 +92,7 @@ def knn(training_stats, training_future_points, test_stats, test_future_points):
 
     for k in neighbors:
         knn = KNeighborsRegressor(n_neighbors = k)
-        scores = cross_val_predict(knn, training_stats, training_future_points, cv = 5)
+        scores = cross_val_score(knn, training_stats, training_future_points, cv = 5)
         cv_scores.append(scores.mean())
 
     optimal_k = neighbors[cv_scores.index(min(cv_scores))]
