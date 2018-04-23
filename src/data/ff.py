@@ -53,6 +53,15 @@ def total_fantasy_points_by_team(df):
     ax.set_xlabel('Team')
     ax.set_ylabel('Fantasy Points')
 
+
+def df_norm(df):
+    """
+    Range normalization for a data frame
+    :param df: data frame to be normalized
+    :return: normalized data frame
+    """
+    return (df - df.mean()) / (df.max() - df.min())
+
 def get_index_for_position(season1, season2, pos = 'QB'):
     """
     Function that returns the index of common players for a specific position
