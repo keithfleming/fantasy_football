@@ -29,11 +29,11 @@ def plot_regression_coefs(multiple, ridge, lasso, elasticnet, pos):
     width = 0.2
 
     if pos == 'QB':
-        labels = ['Cmp', 'PassAtt', 'PassYds', 'PassTD', 'Int', 'RushAtt', 'RushYds', 'Y/A', 'RushTD', 'FantPt']
+        labels = ['Cmp', 'PassAtt', 'PassYds', 'PassTD', 'Int', 'RushAtt', 'RushYds', 'RushTD', 'FantPt']
     elif pos == 'RB':
-        labels = []
+        labels = ['RushAtt', 'RushYds', 'RushTD', 'Rec', 'Tgt', 'RecYds', 'RecTD', 'FantPt']
     else:
-        labels = []
+        labels = ['Rec', 'Tgt', 'RecYds', 'RecTD', 'FantPt']
 
     r1 = np.arange(len(multiple))
     r2 = [x + width for x in r1]
