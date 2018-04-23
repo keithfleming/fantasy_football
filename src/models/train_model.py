@@ -92,8 +92,8 @@ def knn(training_stats, training_future_points, test_stats, test_future_points):
 
     for k in neighbors:
         knn = KNeighborsRegressor(n_neighbors = k)
-        scores = cross_val_score(knn, training_stats, training_future_points, cv = 5)
-        cv_scores.append(scores.mean())
+        scores = cross_val_score(knn, training_stats, training_future_points, cv = 5, scoring = 'neg_mean_squared_error')
+        cv_scores.append(-scores.mean())
 
     optimal_k = neighbors[cv_scores.index(min(cv_scores))]
 
