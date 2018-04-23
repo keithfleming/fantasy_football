@@ -81,7 +81,7 @@ def prepare_input_data(data, result, index, pos):
     data = data.sort_values('Label')
 
     if pos == 'QB':
-        X = data[['Cmp', 'PassAtt', 'PassYds', 'PassTD', 'Int', 'RushAtt', 'RushYds', 'Y/A', 'RushTD', 'FantPt']]
+        X = data[['Cmp', 'PassAtt', 'PassYds', 'PassTD', 'Int', 'RushAtt', 'RushYds', 'RushTD', 'FantPt']]
     elif pos == 'WR' or pos == 'TE':
         X = data[['Rec', 'Tgt', 'RecYds', 'RecTD', 'FantPt']]
     elif pos == 'RB':
