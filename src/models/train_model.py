@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import fantasy_football.src.data.ff as data
 from sklearn  import linear_model
 from sklearn import metrics
 from sklearn.neighbors import KNeighborsRegressor
@@ -86,21 +87,24 @@ def knn(training_stats, training_future_points, test_stats, test_future_points):
         :param test_future_points: The set of future fantasy points for the test_stats
         :return: k nearest neighbors and MSE from the test set
         """
+    training_stats_norm = data.df_norm(training_stats)
+    test_stats_norm = data.df_norm(test_stats)
+
     neighbors = [2,4,6,8,10,12,14,16,18,20]
 
     cv_scores = []
 
     for k in neighbors:
         knn = KNeighborsRegressor(n_neighbors = k)
-        scores = cross_val_score(knn, training_stats, training_future_points, cv = 5, scoring = 'neg_mean_squared_error')
+        scores = cross_val_score(knn, training_stats_norm, training_future_points, cv = 5, scoring = 'neg_mean_squared_error')
         cv_scores.append(-scores.mean())
 
     optimal_k = neighbors[cv_scores.index(min(cv_scores))]
 
     model = KNeighborsRegressor(n_neighbors=optimal_k)
-    model.fit(training_stats, training_future_points)
+    model.fit(training_stats_norm, training_future_points)
 
-    pred = model.predict(test_stats)
+    pred = model.predict(test_stats_norm)
 
     mse = metrics.mean_squared_error(test_future_points, pred)
 
